@@ -1,19 +1,22 @@
 #!/usr/bin/env bash
 
 # Wrapper version
-VERSION=0.1.0
+VERSION=0.1.1
 
 # Log operations to $HOME/.log/
-DEBUG=1
-LOGDIR="$HOME/.log/"
-LOG="$LOGDIR/steam-wrapper.log"
+DEBUG=${_DEBUG:-1}
+LOGDIR=${_LOGDIR:-"$HOME/.log/"}
 
 # Use the packaged steam runtime (0 OFF, 1 ON)
 # Read for details:
 #     https://wiki.archlinux.org/index.php/steam#Using_native_runtime
-USE_RUNTIME=0
+USE_RUNTIME=${_USE_RUNTIME:-0}
+
 # Close Steam to the system tray (0 OFF, 1 ON)
-CLOSE_TO_TRAY=0
+# CLOSE_TO_TRAY=${_CLOSE_TO_TRAY:-0}
+
+# File to log to, generally do not need to change.
+LOG="$LOGDIR/steam-wrapper.log"
 
 #####################################################################
 # steam-wrapper
@@ -35,7 +38,11 @@ fi
 
 # Read for details:
 #     https://wiki.archlinux.org/index.php/steam#Steam_runtime_issues
-find $HOME/.local/share/Steam/ \( -name "libgcc_s.so*" -o -name "libstdc++.so*" -o -name "libxcb.so*" \) -delete -print >> $LOG
+if [[ $DEBUG -eq 1 ]]; then
+	find $HOME/.local/share/Steam/ \( -name "libgcc_s.so*" -o -name "libstdc++.so*" -o -name "libxcb.so*" \) -delete -print >> $LOG
+else
+	find $HOME/.local/share/Steam/ \( -name "libgcc_s.so*" -o -name "libstdc++.so*" -o -name "libxcb.so*" \) -delete
+fi
 
 if [[ $DEBUG -eq 1 ]]; then
 	echo "steam-wrapper[$VERSION]: Done." >> $LOG
@@ -43,4 +50,7 @@ if [[ $DEBUG -eq 1 ]]; then
 fi
 
 # Run steam using the wrapper
-exec env STEAM_RUNTIME="${USE_RUNTIME}" STEAM_FRAME_FORCE_CLOSE="${CLOSE_TO_TRAY}" steam "$@"
+exec env \
+	STEAM_RUNTIME="${USE_RUNTIME}" \
+	# STEAM_FRAME_FORCE_CLOSE="${CLOSE_TO_TRAY}" \
+	steam "$@"

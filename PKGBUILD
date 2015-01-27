@@ -2,8 +2,8 @@
 
 pkgname=steam-wrapper
 pkgdesc="Steam wrapper for common operations"
-pkgver=0.1.0
-pkgrel=2
+pkgver=0.1.1
+pkgrel=1
 arch=('i686' 'x86_64')
 optdepends=('steam-native: Native runtime library support')
 depends=('steam' 'bash' 'coreutils')
@@ -22,9 +22,6 @@ pkgver() {
 package() {
 	cd "$srcdir"
 
-	# Edit the script
-	# ${EDITOR:-vi} "${pkgname}"
-
 	# Install the script
 	mkdir -p "$pkgdir"/usr/bin/
 	cp "${pkgname}" "$pkgdir"/usr/bin/
@@ -36,5 +33,5 @@ package() {
 	chmod 644 "$pkgdir"/usr/share/applications/${pkgname}.desktop
 }
 
-sha256sums=('83593e75e5ae8a680e344407923213ff312f4c40c20d18a2dd265cf309d82f07'
+sha256sums=('561ec3599ebb5ae0ee85322d69ed12acbfec164750c954f6e57f71490af14934'
             '38e5eeb6011dbfb0bab424a8ce27b456f44ccff0c295aa03daac9b542fd69754')

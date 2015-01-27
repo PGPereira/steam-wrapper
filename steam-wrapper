@@ -10,7 +10,7 @@ LOGDIR=${_LOGDIR:-"$HOME/.log/"}
 # Use the packaged steam runtime (0 OFF, 1 ON)
 # Read for details:
 #     https://wiki.archlinux.org/index.php/steam#Using_native_runtime
-USE_RUNTIME=${_USE_RUNTIME:-0}
+USE_RUNTIME=${_USE_RUNTIME:-1}
 
 # Close Steam to the system tray (0 OFF, 1 ON)
 CLOSE_TO_TRAY=${_CLOSE_TO_TRAY:-1}

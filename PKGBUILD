@@ -2,7 +2,7 @@
 
 pkgname=steam-wrapper
 pkgdesc="Steam wrapper for common operations"
-pkgver=0.1.1
+pkgver=0.1.2
 pkgrel=1
 arch=('i686' 'x86_64')
 optdepends=('steam-native: Native runtime library support')
@@ -33,5 +33,5 @@ package() {
 	chmod 644 "$pkgdir"/usr/share/applications/${pkgname}.desktop
 }
 
-sha256sums=('561ec3599ebb5ae0ee85322d69ed12acbfec164750c954f6e57f71490af14934'
+sha256sums=('a785e525a1c3fbb4ee590a7d0b67df5352ebf32dd7727aa1021db0d03eddf3f9'
             '38e5eeb6011dbfb0bab424a8ce27b456f44ccff0c295aa03daac9b542fd69754')

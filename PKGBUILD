@@ -3,13 +3,14 @@
 pkgname=steam-wrapper
 pkgdesc="Steam wrapper for common operations"
 pkgver=0.1.0
-pkgrel=1
+pkgrel=2
 arch=('i686' 'x86_64')
 optdepends=('steam-native: Native runtime library support')
 depends=('steam' 'bash' 'coreutils')
-provides=('${pkgname}')
+provides=("${pkgname}")
 license=('custom')
 source=("${pkgname}" "${pkgname}.desktop")
+url="https://github.com/pyamsoft/steam-wrapper.git"
 
 pkgver() {
 	cd "$srcdir"

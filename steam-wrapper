@@ -1,17 +1,36 @@
 #!/usr/bin/env bash
 
 # Wrapper version
-VERSION=0.1.3
+VERSION=0.1.4
 
 #####################################################################
 # steam-wrapper
 # Packaged by: pyamsoft <pyam.soft@gmail.com>
 #####################################################################
 
-LOGDIR="$HOME/.steam-wrapper/"
-LOG="$LOGDIR/steam-wrapper.log"
+
+CONF_LOCATION=""
+if [[ -f $HOME/.steam-wrapper/steam-wrapper.conf ]]; then
+	CONF_LOCATION="$HOME/.steam-wrapper/steam-wrapper.conf"
+elif [[ -f $HOME/.steam-wrapper.conf ]]; then
+	CONF_LOCATION="$HOME/.steam-wrapper.conf"
+elif [[ -f /etc/steam-wrapper/steam-wrapper.conf ]]; then
+	CONF_LOCATION="/etc/steam-wrapper/steam-wrapper.conf"
+elif [[ -f /etc/steam-wrapper.conf ]]; then
+	CONF_LOCATION="/etc/steam-wrapper.conf"
+fi
+
+if [[ $CONF_LOCATION != "" ]]; then
+	source $CONF_LOCATION
+else
+	DEBUG=1
+	USE_RUNTIME=1
+	CLOSE_TO_TRAY=1
+	LOGDIR="$HOME/.steam-wrapper/"
+fi
 
 # Create the log directory
+LOG="$LOGDIR/steam-wrapper.log"
 mkdir -p $LOGDIR
 
 # Log opening
@@ -19,28 +38,13 @@ if [[ $DEBUG -eq 1 ]]; then
 	echo "steam-wrapper[$VERSION]: Launched on $(date +%Y-%m-%d) at $(date +%R) [$(date +%r)]" >> $LOG
 fi
 
-if [[ -f $HOME/.steam-wrapper/steam-wrapper.conf ]]; then
-	source $HOME/.steam-wrapper/steam-wrapper.conf
-	echo -n "steam-wrapper[$VERSION]: Configuration file found at: " >> $LOG
-	echo "$HOME/.steam-wrapper/steam-wrapper.conf" >> $LOG
-elif [[ -f $HOME/.steam-wrapper.conf ]]; then
-	source $HOME/.steam-wrapper.conf
-	echo -n "steam-wrapper[$VERSION]: Configuration file found at: " >> $LOG
-	echo "$HOME/.steam-wrapper.conf" >> $LOG
-elif [[ -f /etc/steam-wrapper/steam-wrapper.conf ]]; then
-	source /etc/steam-wrapper/steam-wrapper.conf
-	echo -n "steam-wrapper[$VERSION]: Configuration file found at: " >> $LOG
-	echo "/etc/steam-wrapper/steam-wrapper.conf" >> $LOG
-elif [[ -f /etc/steam-wrapper.conf ]]; then
-	source /etc/steam-wrapper.conf
-	echo -n "steam-wrapper[$VERSION]: Configuration file found at: " >> $LOG
-	echo "/etc/steam-wrapper.conf" >> $LOG
-else
-	DEBUG=1
-	USE_RUNTIME=1
-	CLOSE_TO_TRAY=1
-	echo -n "steam-wrapper[$VERSION]: No configuration file found. " >> $LOG
-	echo "Using preset defaults." >> $LOG
+if [[ $DEBUG -eq 1 ]]; then
+	if [[ $CONF_LOCATION != "" ]]; then
+		echo "steam-wrapper[$VERSION]: Configuration file found at: $CONF_LOCATION" >> $LOG
+	else
+		echo "steam-wrapper[$VERSION]: No configuration file found" >> $LOG
+		echo "Using preset defaults." >> $LOG
+	fi
 fi
 
 # Remove some files that apperantly conflict with native runtimes on ArchLinux

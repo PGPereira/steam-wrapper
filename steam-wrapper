@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
 
+##
 # Wrapper version
+##
 VERSION=0.1.4
 
-#####################################################################
+##
 # steam-wrapper
 # Packaged by: pyamsoft <pyam.soft@gmail.com>
-#####################################################################
+##
 
-
+##
+# Searches for the steam-wrapper.conf file in a couple of specified locations.
+# The first found file will be used as the configuration file
+##
 CONF_LOCATION=""
 if [[ -f $HOME/.steam-wrapper/steam-wrapper.conf ]]; then
 	CONF_LOCATION="$HOME/.steam-wrapper/steam-wrapper.conf"
@@ -20,6 +25,10 @@ elif [[ -f /etc/steam-wrapper.conf ]]; then
 	CONF_LOCATION="/etc/steam-wrapper.conf"
 fi
 
+##
+# If a configuration file was present, source it for use, otherwise
+# we will use pre-defined varialbes which are arguably sensible by default.
+##
 if [[ $CONF_LOCATION != "" ]]; then
 	source $CONF_LOCATION
 else
@@ -29,37 +38,52 @@ else
 	LOGDIR="$HOME/.steam-wrapper/"
 fi
 
+##
 # Create the log directory
+##
 LOG="$LOGDIR/steam-wrapper.log"
 mkdir -p $LOGDIR
 
+##
 # Log opening
+##
 if [[ $DEBUG -eq 1 ]]; then
-	echo "steam-wrapper[$VERSION]: Launched on $(date +%Y-%m-%d) at $(date +%R) [$(date +%r)]" >> $LOG
+	echo "steam-wrapper[$VERSION]: Launched on $(date +%Y-%m-%d) at \
+		$(date +%R) [$(date +%r)]" >> $LOG
 fi
 
+##
+# Log the steam-wrapper configuration location
+##
 if [[ $DEBUG -eq 1 ]]; then
 	if [[ $CONF_LOCATION != "" ]]; then
-		echo "steam-wrapper[$VERSION]: Configuration file found at: $CONF_LOCATION" >> $LOG
+		echo "steam-wrapper[$VERSION]: Configuration file found \
+			at: $CONF_LOCATION" >> $LOG
 	else
-		echo "steam-wrapper[$VERSION]: No configuration file found" >> $LOG
+		echo "steam-wrapper[$VERSION]: No configuration file \
+			found" >> $LOG
 		echo "Using preset defaults." >> $LOG
 	fi
 fi
 
+##
 # Remove some files that apperantly conflict with native runtimes on ArchLinux
-if [[ $DEBUG -eq 1 ]]; then
-	echo "steam-wrapper[$VERSION]: Attempting removal of stale libraries..." >> $LOG
-fi
-
+#
 # Read for details:
 #     https://wiki.archlinux.org/index.php/steam#Steam_runtime_issues
+##
 if [[ $DEBUG -eq 1 ]]; then
-	find $HOME/.local/share/Steam/ \( -name "libgcc_s.so*" -o -name "libstdc++.so*" -o -name "libxcb.so*" \) -delete -print >> $LOG
+	echo "steam-wrapper[$VERSION]: Attempting removal of stale libraries..." >> $LOG
+	find $HOME/.local/share/Steam/ \( -name "libgcc_s.so*" -o -name \
+		"libstdc++.so*" -o -name "libxcb.so*" \) -delete -print >> $LOG
 else
-	find $HOME/.local/share/Steam/ \( -name "libgcc_s.so*" -o -name "libstdc++.so*" -o -name "libxcb.so*" \) -delete
+	find $HOME/.local/share/Steam/ \( -name "libgcc_s.so*" -o -name \
+		"libstdc++.so*" -o -name "libxcb.so*" \) -delete
 fi
 
+##
+# Log the wrapper variables used.
+##
 if [[ $DEBUG -eq 1 ]]; then
 	echo "steam-wrapper[$VERSION]: Done." >> $LOG
 	echo "steam-wrapper[$VERSION]: Launching steam with environment:" >> $LOG
@@ -68,7 +92,9 @@ if [[ $DEBUG -eq 1 ]]; then
 	echo >> $LOG
 fi
 
+##
 # Run steam using the wrapper
+##
 exec env \
 	STEAM_RUNTIME="${USE_RUNTIME}" \
 	STEAM_FRAME_FORCE_CLOSE="${CLOSE_TO_TRAY}" \

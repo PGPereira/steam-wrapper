@@ -3,7 +3,7 @@
 pkgname=steam-wrapper-git
 pkgdesc="Steam wrapper for common operations"
 pkgver=0.1.4.git
-pkgrel=2
+pkgrel=3
 arch=('i686' 'x86_64')
 optdepends=('steam-native: Native runtime library support')
 depends=('steam' 'bash' 'coreutils' 'git')
@@ -13,7 +13,7 @@ license=('custom')
 url="https://github.com/pyamsoft/steam-wrapper.git"
 sha256sums=('SKIP')
 _gitname=steam-wrapper
-_gitbranch=master
+_gitbranch=dev
 source=("${_gitname}::git+${url}#branch=${_gitbranch}")
 
 pkgver() {

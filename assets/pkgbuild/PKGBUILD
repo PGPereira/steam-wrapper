@@ -20,7 +20,7 @@ pkgver() {
 	cd "$srcdir"/"$_gitname"
 
 	# Source the version from the script because too lazy to update two different files.
-	echo "$(head -n 4 ${_gitname} | tail -n 1 | cut -c9-).git"
+	echo "$(head -n 6 ${_gitname} | tail -n 1 | cut -c9-).git"
 }
 
 package() {

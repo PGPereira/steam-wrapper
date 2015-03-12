@@ -3,7 +3,7 @@
 ##
 # Wrapper version
 ##
-VERSION=0.1.5.git
+VERSION=0.1.6.git
 
 ##
 # steam-wrapper
@@ -84,18 +84,16 @@ fi
 ##
 ARCH=$(uname -m)
 if [[ $ARCH = "x86_64" ]]; then
-	if [[ -f $HOME/.steam ]]; then
-		if [[ ! -f $HOME/.steam/bin/plugins/libflashplayer.so ]]; then
-			[[ $DEBUG -eq 1 ]] && echo "steam-wrapper[$VERSION]: \
-				Link libflashplayer.so" >> $LOG
-			mkdir -p $HOME/.steam/bin/plugins
-			##
-			# This path to the flashplugin may be different on
-			# other distributions, this is the path on ArchLinux.
-			##
-			ln -sf /usr/lib32/mozilla/plugins/libflashplayer.so \
-				$HOME/.steam/bin/plugins/libflashplayer.so
-		fi
+	if [[ ! -f $HOME/.steam/bin/plugins/libflashplayer.so ]]; then
+		[[ $DEBUG -eq 1 ]] && echo "steam-wrapper[$VERSION]: \
+			Link libflashplayer.so" >> $LOG
+		mkdir -p $HOME/.steam/bin/plugins
+		##
+		# This path to the flashplugin may be different on
+		# other distributions, this is the path on ArchLinux.
+		##
+		ln -sf /usr/lib32/mozilla/plugins/libflashplayer.so \
+			$HOME/.steam/bin/plugins/libflashplayer.so
 	fi
 fi
 

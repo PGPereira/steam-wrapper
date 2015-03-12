@@ -17,10 +17,8 @@ _gitbranch=dev
 source=("${_gitname}::git+${url}#branch=${_gitbranch}")
 
 pkgver() {
-	cd "$srcdir"/"$_gitname"
-
-	# Source the version from the script because too lazy to update two different files.
-	echo "$(head -n 6 ${_gitname} | tail -n 1 | cut -c9-).git"
+	cd "$srcdir/$_gitname"
+	awk -F '=' '{if (/^VERSION:=/) {print $2}}' "config.mk"
 }
 
 package() {

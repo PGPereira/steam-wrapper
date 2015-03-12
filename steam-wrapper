@@ -85,15 +85,23 @@ fi
 ARCH=$(uname -m)
 if [[ $ARCH = "x86_64" ]]; then
 	if [[ ! -f $HOME/.steam/bin/plugins/libflashplayer.so ]]; then
+		if [[ -f /usr/lib32/mozilla/plugins/libflashplayer.so ]]; then
+			[[ $DEBUG -eq 1 ]] && echo "steam-wrapper[$VERSION]: \
+				Link libflashplayer.so" >> $LOG
+			mkdir -p $HOME/.steam/bin/plugins
+			##
+			# This path to the flashplugin may be different on
+			# other distributions, this is the path on ArchLinux.
+			##
+			ln -sf /usr/lib32/mozilla/plugins/libflashplayer.so \
+				$HOME/.steam/bin/plugins/libflashplayer.so
+		else
+			[[ $DEBUG -eq 1 ]] && echo "steam-wrapper[$VERSION]: \
+				Cannot find libflashplayer.so" >> $LOG
+		fi
+	else
 		[[ $DEBUG -eq 1 ]] && echo "steam-wrapper[$VERSION]: \
-			Link libflashplayer.so" >> $LOG
-		mkdir -p $HOME/.steam/bin/plugins
-		##
-		# This path to the flashplugin may be different on
-		# other distributions, this is the path on ArchLinux.
-		##
-		ln -sf /usr/lib32/mozilla/plugins/libflashplayer.so \
-			$HOME/.steam/bin/plugins/libflashplayer.so
+			Flashplayer is already linked." >> $LOG
 	fi
 fi
 

@@ -2,7 +2,7 @@
 
 pkgname=steam-wrapper-git
 pkgdesc="Steam wrapper for common operations"
-pkgver=0.1.5.git
+pkgver=0.1.6.git
 pkgrel=1
 arch=('i686' 'x86_64')
 optdepends=('steam-native: Native runtime library support')

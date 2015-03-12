@@ -47,10 +47,8 @@ mkdir -p $LOGDIR
 ##
 # Log opening
 ##
-if [[ $DEBUG -eq 1 ]]; then
-	echo "steam-wrapper[$VERSION]: Launched on $(date +%Y-%m-%d) at \
-		$(date +%R) [$(date +%r)]" >> $LOG
-fi
+[[ $DEBUG -eq 1 ]] && echo "steam-wrapper[$VERSION]: Launched on \
+	$(date +%Y-%m-%d) at $(date +%R) [$(date +%r)]" >> $LOG
 
 ##
 # Log the steam-wrapper configuration location
@@ -79,6 +77,26 @@ if [[ $DEBUG -eq 1 ]]; then
 else
 	find $HOME/.local/share/Steam/ \( -name "libgcc_s.so*" -o -name \
 		"libstdc++.so*" -o -name "libxcb.so*" \) -delete
+fi
+
+##
+# Link the flash player library on 64 bit systems
+##
+ARCH=$(uname -m)
+if [[ $ARCH = "x64_86" ]]; then
+	if [[ -f $HOME/.steam ]]; then
+		if [[ ! -f $HOME/.steam/bin/plugins/libflashplayer.so ]]; then
+			[[ $DEBUG -eq 1 ]] && echo "steam-wrapper[$VERSION]: \
+				Link libflashplayer.so" >> $LOG
+			mkdir -p $HOME/.steam/bin/plugins
+			##
+			# This path to the flashplugin may be different on
+			# other distributions, this is the path on ArchLinux.
+			##
+			ln -sf /usr/lib32/mozilla/plugins/libflashplayer.so \
+				$HOME/.steam/bin/plugins/libflashplayer.so
+		fi
+	fi
 fi
 
 ##

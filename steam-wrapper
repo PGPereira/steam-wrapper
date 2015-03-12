@@ -83,7 +83,7 @@ fi
 # Link the flash player library on 64 bit systems
 ##
 ARCH=$(uname -m)
-if [[ $ARCH = "x64_86" ]]; then
+if [[ $ARCH = "x86_64" ]]; then
 	if [[ -f $HOME/.steam ]]; then
 		if [[ ! -f $HOME/.steam/bin/plugins/libflashplayer.so ]]; then
 			[[ $DEBUG -eq 1 ]] && echo "steam-wrapper[$VERSION]: \

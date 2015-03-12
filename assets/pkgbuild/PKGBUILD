@@ -2,8 +2,8 @@
 
 pkgname=steam-wrapper-git
 pkgdesc="Steam wrapper for common operations"
-pkgver=0.1.4.git
-pkgrel=3
+pkgver=0.1.5.git
+pkgrel=1
 arch=('i686' 'x86_64')
 optdepends=('steam-native: Native runtime library support')
 depends=('steam' 'bash' 'coreutils' 'git')
@@ -18,7 +18,7 @@ source=("${_gitname}::git+${url}#branch=${_gitbranch}")
 
 pkgver() {
 	cd "$srcdir/$_gitname"
-	awk -F '=' '{if (/^VERSION:=/) {print $2}}' "steam-wrapper"
+	awk -F '=' '{if (/^VERSION=/) {print $2}}' "steam-wrapper"
 }
 
 package() {

@@ -123,3 +123,4 @@ exec env \
 	STEAM_RUNTIME="${USE_RUNTIME}" \
 	STEAM_FRAME_FORCE_CLOSE="${CLOSE_TO_TRAY}" \
 	steam "$@"
+

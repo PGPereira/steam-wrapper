@@ -41,3 +41,7 @@ steam-wrapper.
 
 Please contact pyamsoft at pyam.soft@gmail.com for any questions concerning  
 the steam-wrapper script.
+
+## License
+
+GPL v2

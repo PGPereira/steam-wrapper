@@ -33,3 +33,4 @@ package() {
 	cp ${_gitname}.conf "$pkgdir"/etc/${_gitname}/${_gitname}.conf
 	chmod 644 "$pkgdir"/etc/${_gitname}/${_gitname}.conf
 }
+

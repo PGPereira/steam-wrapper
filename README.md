@@ -54,3 +54,4 @@ terms set forth in the original Steam license.
 In short, the ability to edit this wrapper script does not give one the  
 ability to modify anything about the Steam binary without the express consent  
 of the Valve Corporation.
+

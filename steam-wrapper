@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 ##
 # Wrapper version
 ##
@@ -7,62 +9,38 @@ VERSION=0.1.6
 
 ##
 # steam-wrapper
-# Packaged by: pyamsoft <pyam.soft@gmail.com>
+# Packaged by: pyamsoft <pyam(dot)soft(at)gmail(dot)com>
 ##
-
-##
-# Searches for the steam-wrapper.conf file in a couple of specified locations.
-# The first found file will be used as the configuration file
-##
-CONF_LOCATION=""
-if [[ -f $HOME/.steam-wrapper/steam-wrapper.conf ]]; then
-	CONF_LOCATION="$HOME/.steam-wrapper/steam-wrapper.conf"
-elif [[ -f $HOME/.steam-wrapper.conf ]]; then
-	CONF_LOCATION="$HOME/.steam-wrapper.conf"
-elif [[ -f /etc/steam-wrapper/steam-wrapper.conf ]]; then
-	CONF_LOCATION="/etc/steam-wrapper/steam-wrapper.conf"
-elif [[ -f /etc/steam-wrapper.conf ]]; then
-	CONF_LOCATION="/etc/steam-wrapper.conf"
-fi
-
-##
-# If a configuration file was present, source it for use, otherwise
-# we will use pre-defined varialbes which are arguably sensible by default.
-##
-if [[ $CONF_LOCATION != "" ]]; then
-	source $CONF_LOCATION
-else
-	DEBUG=1
-	USE_RUNTIME=1
-	CLOSE_TO_TRAY=1
-	LOGDIR="$HOME/.steam-wrapper/"
-fi
-
-##
-# Create the log directory
-##
-LOG="$LOGDIR/steam-wrapper.log"
-mkdir -p $LOGDIR
 
 ##
 # Log opening
 ##
-[[ $DEBUG -eq 1 ]] && echo "steam-wrapper[$VERSION]: Launched on \
-	$(date +%Y-%m-%d) at $(date +%R) [$(date +%r)]" >> $LOG
+function log_opening()
+{
+	if [[ $DEBUG -eq 1 ]]; then
+		echo -n "steam-wrapper[$VERSION]: Launched on " >> $LOG
+		echo "$(date +%Y-%m-%d) at $(date +%R) [$(date +%r)]" >> $LOG
+	fi
+}
 
 ##
 # Log the steam-wrapper configuration location
 ##
-if [[ $DEBUG -eq 1 ]]; then
-	if [[ $CONF_LOCATION != "" ]]; then
-		echo "steam-wrapper[$VERSION]: Configuration file found \
-			at: $CONF_LOCATION" >> $LOG
-	else
-		echo "steam-wrapper[$VERSION]: No configuration file \
-			found" >> $LOG
-		echo "Using preset defaults." >> $LOG
+function log_config_location()
+{
+	if [[ $DEBUG -eq 1 ]]; then
+		if [[ $CONF_LOCATION != "" ]]; then
+			echo -n "steam-wrapper[$VERSION]: " >> $LOG
+			echo -n "Configuration file " >> $LOG
+			echo "found at: $CONF_LOCATION" >> $LOG
+		else
+			echo -n "steam-wrapper[$VERSION]: " >> $LOG
+			echo -n "No configuration " >> $LOG
+			echo "file found" >> $LOG
+			echo "Using preset defaults." >> $LOG
+		fi
 	fi
-fi
+}
 
 ##
 # Remove some files that apperantly conflict with native runtimes on ArchLinux
@@ -70,24 +48,38 @@ fi
 # Read for details:
 #     https://wiki.archlinux.org/index.php/steam#Steam_runtime_issues
 ##
-if [[ $DEBUG -eq 1 ]]; then
-	echo "steam-wrapper[$VERSION]: Attempting removal of stale libraries..." >> $LOG
-	find $HOME/.local/share/Steam/ \( -name "libgcc_s.so*" -o -name \
-		"libstdc++.so*" -o -name "libxcb.so*" \) -delete -print >> $LOG
-else
-	find $HOME/.local/share/Steam/ \( -name "libgcc_s.so*" -o -name \
-		"libstdc++.so*" -o -name "libxcb.so*" \) -delete
-fi
+function remove_stale_files()
+{
+	if [[ $DEBUG -eq 1 ]]; then
+		echo -n "steam-wrapper[$VERSION]: Attempting removal " >> $LOG
+		echo "of stale libraries..." >> $LOG
+		find $HOME/.local/share/Steam/ \( -name "libgcc_s.so*" -o \
+			-name "libstdc++.so*" -o -name "libxcb.so*" \) \
+			-delete -print >> $LOG
+	else
+		find $HOME/.local/share/Steam/ \( -name "libgcc_s.so*" -o \
+			-name "libstdc++.so*" -o -name "libxcb.so*" \) -delete
+	fi
+}
 
 ##
 # Link the flash player library on 64 bit systems
 ##
-ARCH=$(uname -m)
-if [[ $ARCH = "x86_64" ]]; then
-	if [[ ! -f $HOME/.steam/bin/plugins/libflashplayer.so ]]; then
-		if [[ -f /usr/lib32/mozilla/plugins/libflashplayer.so ]]; then
-			[[ $DEBUG -eq 1 ]] && echo "steam-wrapper[$VERSION]: \
-				Link libflashplayer.so" >> $LOG
+function link_lib32_flash()
+{
+	local ARCH=$(uname -m)
+	if [[ $ARCH = "x86_64" ]]; then
+		[[ $DEBUG -eq 1 ]] && {
+			echo -n "steam-wrapper[$VERSION]: " >> $LOG
+			echo -n "Attempt linking of lib32 " >> $LOG
+			echo "libflashplayer.so" >> $LOG
+		}
+		if [[ -f $HOME/.steam/bin/plugins/libflashplayer.so ]]; then
+			if [[ $DEBUG -eq 1 ]]; then
+				echo -n "steam-wrapper[$VERSION]: " >> $LOG
+				echo "Flashplayer is already linked." >> $LOG
+			fi
+		elif [[ -f /usr/lib32/mozilla/plugins/libflashplayer.so ]]; then
 			mkdir -p $HOME/.steam/bin/plugins
 			##
 			# This path to the flashplugin may be different on
@@ -95,31 +87,105 @@ if [[ $ARCH = "x86_64" ]]; then
 			##
 			ln -sf /usr/lib32/mozilla/plugins/libflashplayer.so \
 				$HOME/.steam/bin/plugins/libflashplayer.so
+			if [[ $DEBUG -eq 1 ]]; then
+				echo -n "steam-wrapper[$VERSION]: " >> $LOG
+				echo "Linked libflashplayer.so" >> $LOG
+			fi
 		else
-			[[ $DEBUG -eq 1 ]] && echo "steam-wrapper[$VERSION]: \
-				Cannot find libflashplayer.so" >> $LOG
+			if [[ $DEBUG -eq 1 ]]; then
+				echo -n "steam-wrapper[$VERSION]: " >> $LOG
+				echo "Cannot find libflashplayer.so" >> $LOG
+			fi
 		fi
-	else
-		[[ $DEBUG -eq 1 ]] && echo "steam-wrapper[$VERSION]: \
-			Flashplayer is already linked." >> $LOG
 	fi
-fi
+	unset ARCH
+}
 
 ##
 # Log the wrapper variables used.
 ##
-if [[ $DEBUG -eq 1 ]]; then
-	echo "steam-wrapper[$VERSION]: Done." >> $LOG
-	echo "steam-wrapper[$VERSION]: Launching steam with environment:" >> $LOG
-	echo "steam-wrapper[$VERSION]:     STEAM_RUNTIME = ${USE_RUNTIME}" >> $LOG
-	echo "steam-wrapper[$VERSION]:     STEAM_FRAME_FORCE_CLOSE = ${CLOSE_TO_TRAY}" >> $LOG
-	echo >> $LOG
-fi
+function log_wrapper_usage()
+{
+	if [[ $DEBUG -eq 1 ]]; then
+		echo "steam-wrapper[$VERSION]: Done." >> $LOG
+		echo -n "steam-wrapper[$VERSION]: Launching steam with" >> $LOG
+		echo " environment:" >> $LOG
+		echo -n "steam-wrapper[$VERSION]:     STEAM_RUNTIME =" >> $LOG
+		echo " ${USE_RUNTIME}" >> $LOG
+		echo -n "steam-wrapper[$VERSION]:     " >> $LOG
+		echo -n "STEAM_FRAME_FORCE_CLOSE = " >> $LOG
+		echo "${CLOSE_TO_TRAY}" >> $LOG
+		echo >> $LOG
+	fi
+}
 
 ##
-# Run steam using the wrapper
+# Searches for the steam-wrapper.conf file in a couple of specified locations.
+# The first found file will be used as the configuration file
 ##
-exec env \
-	STEAM_RUNTIME="${USE_RUNTIME}" \
-	STEAM_FRAME_FORCE_CLOSE="${CLOSE_TO_TRAY}" \
-	steam "$@"
+function find_conf()
+{
+	local CONF_LOCATION=""
+	if [[ -f $HOME/.steam-wrapper/steam-wrapper.conf ]]; then
+		CONF_LOCATION="$HOME/.steam-wrapper/steam-wrapper.conf"
+	elif [[ -f $HOME/.steam-wrapper.conf ]]; then
+		CONF_LOCATION="$HOME/.steam-wrapper.conf"
+	elif [[ -f /etc/steam-wrapper/steam-wrapper.conf ]]; then
+		CONF_LOCATION="/etc/steam-wrapper/steam-wrapper.conf"
+	elif [[ -f /etc/steam-wrapper.conf ]]; then
+		CONF_LOCATION="/etc/steam-wrapper.conf"
+	fi
+	echo $CONF_LOCATION
+	unset CONF_LOCATION
+}
+
+function main()
+{
+
+	local CONF_LOCATION
+	local DEBUG
+	local USE_RUNTIME
+	local CLOSE_TO_TRAY
+	local LOGDIR
+	local LOG
+
+	CONF_LOCATION=$(find_conf)
+
+	##
+	# If a configuration file was present, source it for use, otherwise
+	# we will use pre-defined varialbes which are arguably sensible by
+	# default.
+	##
+	if [[ $CONF_LOCATION != "" ]]; then
+		source $CONF_LOCATION
+	else
+		DEBUG=1
+		USE_RUNTIME=1
+		CLOSE_TO_TRAY=1
+		LOGDIR="$HOME/.steam-wrapper/"
+	fi
+
+	LOG="$LOGDIR/steam-wrapper.log"
+	mkdir -p $LOGDIR
+
+	log_opening
+	log_config_location
+	remove_stale_files
+	link_lib32_flash
+	log_wrapper_usage
+
+	##
+	# Clean up some of the unused vars
+	##
+	unset DEBUG LOGDIR LOG CONF_LOCATION
+
+	##
+	# Run steam using the wrapper
+	##
+	exec env \
+		STEAM_RUNTIME="${USE_RUNTIME}" \
+		STEAM_FRAME_FORCE_CLOSE="${CLOSE_TO_TRAY}" \
+		steam "$@"
+}
+
+main

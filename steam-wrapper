@@ -53,7 +53,9 @@ function steam_folder_exists()
 		return 0
 	else
 		echo -n "steam-wrapper[$VERSION]: Steam folder " >> $LOG
-		echo "doesn't exist, bail out" >> $LOG
+		echo "doesn't exist, launch Steam first" >> $LOG
+		echo -n "steam-wrapper[$VERSION]: Steam folder "
+		echo "doesn't exist, launch Steam first"
 		return 1
 	fi
 }

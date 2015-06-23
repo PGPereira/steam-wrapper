@@ -43,6 +43,22 @@ function log_config_location()
 }
 
 ##
+# Has required Steam folders
+##
+function steam_folder_exists()
+{
+	if [[ -d $HOME/.local/share/Steam ]]; then
+		echo -n "steam-wrapper[$VERSION]: Steam folder " >> $LOG
+		echo "exists, can continue" >> $LOG
+		return 0
+	else
+		echo -n "steam-wrapper[$VERSION]: Steam folder " >> $LOG
+		echo "doesn't exist, bail out" >> $LOG
+		return 1
+	fi
+}
+
+##
 # Remove some files that apperantly conflict with native runtimes on ArchLinux
 #
 # Read for details:
@@ -149,7 +165,7 @@ function main()
 	local LOGDIR
 	local LOG
 
-	CONF_LOCATION=$(find_conf)
+	CONF_LOCATION=$(find_conf) || return 1
 
 	##
 	# If a configuration file was present, source it for use, otherwise
@@ -168,11 +184,12 @@ function main()
 	LOG="$LOGDIR/steam-wrapper.log"
 	mkdir -p $LOGDIR
 
-	log_opening
-	log_config_location
-	remove_stale_files
-	link_lib32_flash
-	log_wrapper_usage
+	log_opening || return 1
+	log_config_location || return 1
+	steam_folder_exists || return 1
+	remove_stale_files || return 1
+	link_lib32_flash || return 1
+	log_wrapper_usage || return 1
 
 	##
 	# Clean up some of the unused vars
@@ -186,7 +203,9 @@ function main()
 		STEAM_RUNTIME="${USE_RUNTIME}" \
 		STEAM_FRAME_FORCE_CLOSE="${CLOSE_TO_TRAY}" \
 		steam "$@"
+	return 0
 }
 
-main
+main || exit 1
+exit 0
 

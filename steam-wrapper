@@ -48,7 +48,7 @@ function log_config_location()
 ##
 function steam_folder_exists()
 {
-	if [[ -d $HOME/.local/share/Steam ]]; then
+	if [[ -d $HOME/.steam ]]; then
 		echo -n "steam-wrapper[$VERSION]: Steam folder " >> $LOG
 		echo "exists, can continue" >> $LOG
 		return 0
@@ -72,11 +72,11 @@ function remove_stale_files()
 	if [[ $DEBUG -eq 1 ]]; then
 		echo -n "steam-wrapper[$VERSION]: Attempting removal " >> $LOG
 		echo "of stale libraries..." >> $LOG
-		find $HOME/.local/share/Steam/ \( -name "libgcc_s.so*" -o \
+		find $HOME/.steam \( -name "libgcc_s.so*" -o \
 			-name "libstdc++.so*" -o -name "libxcb.so*" \) \
 			-delete -print >> $LOG
 	else
-		find $HOME/.local/share/Steam/ \( -name "libgcc_s.so*" -o \
+		find $HOME/.steam \( -name "libgcc_s.so*" -o \
 			-name "libstdc++.so*" -o -name "libxcb.so*" \) -delete
 	fi
 }

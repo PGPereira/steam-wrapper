@@ -14,6 +14,17 @@ VERSION=0.1.8
 ##
 
 ##
+# Check the environment path for the given binary, exit if it is not found
+##
+checkForBinary() {
+	if ! which "$1" > /dev/null 2>&1; then
+		printf "The '%s' binary is required for operation of this script.\n" "$1"
+		printf "Please install '%s' onto your system.\n" "$1"
+		exit 1
+	fi
+}
+
+##
 # Log opening
 ##
 function log_opening()
@@ -160,6 +171,10 @@ function find_conf()
 
 function main()
 {
+
+	# Check for required binaries, exit out if they are not present
+	checkForBinary find
+	checkForBinary printf
 
 	local CONF_LOCATION
 	local DEBUG

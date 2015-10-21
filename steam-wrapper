@@ -173,15 +173,15 @@ function main()
 {
 
 	# Check for required binaries, exit out if they are not present
-	checkForBinary find
-	checkForBinary printf
+	check_binary find
+	check_binary printf
 
-	local conf_location
-	local debug
-	local use_runtime
-	local close_to_tray
-	local logdir
-	local log
+	local conf_location=
+	local debug=
+	local use_runtime=
+	local close_to_tray=
+	local logdir=
+	local log=
 
 	conf_location=$(find_conf) || return 1
 

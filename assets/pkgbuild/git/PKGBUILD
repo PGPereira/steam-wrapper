@@ -18,7 +18,7 @@ sha256sums=('SKIP')
 
 pkgver() {
 	cd "$srcdir/$_gitname"
-	printf "%s.r%s.%s" "$(awk -F '=' '{if (/^VERSION=/) {print $2}}' 'steam-wrapper')" \
+	printf "%s.r%s.%s" "$(awk -F '=' '{if (/^version=/) {print $2}}' 'steam-wrapper')" \
 		"$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 

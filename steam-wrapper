@@ -91,12 +91,23 @@ function remove_stale_files()
 		echo -n "steam-wrapper[${wrapper_version}]: Attempting " \
                         >> "${log}"
 		echo "removal of stale libraries..." >> "${log}"
-		find $HOME/.steam \( -name "libgcc_s.so*" -o \
-			-name "libstdc++.so*" -o -name "libxcb.so*" \) \
-			-delete -print >> "${log}"
+                find $HOME/.steam/root/ \( -name "libgcc_s.so*" \
+                        -o -name "libstdc++.so*" \
+                        -o -name "libxcb.so*" \) \
+                        -print -delete >> "${log}"
+                find $HOME/.local/share/Steam/ \( -name "libgcc_s.so*" \
+                        -o -name "libstdc++.so*" \
+                        -o -name "libxcb.so*" \) \
+                        -print -delete >> "${log}"
 	else
-		find $HOME/.steam \( -name "libgcc_s.so*" -o \
-			-name "libstdc++.so*" -o -name "libxcb.so*" \) -delete
+                find $HOME/.steam/root/ \( -name "libgcc_s.so*" \
+                        -o -name "libstdc++.so*" \
+                        -o -name "libxcb.so*" \) \
+                        -delete
+                find $HOME/.local/share/Steam/ \( -name "libgcc_s.so*" \
+                        -o -name "libstdc++.so*" \
+                        -o -name "libxcb.so*" \) \
+                        -delete
 	fi
 }
 

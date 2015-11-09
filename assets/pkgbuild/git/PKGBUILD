@@ -18,26 +18,25 @@ source=("${_gitname}::git+${url}#branch=dev")
 sha256sums=('SKIP')
 
 pkgver() {
-	cd "$srcdir/$_gitname"
-	printf "%s.r%s.%s" "$(awk -F '=' \
-                '{if (/^wrapper_version=/) {print $2}}' \
-                'steam-wrapper')" \
-                "$(git rev-list --count HEAD)" \
-                "$(git rev-parse --short HEAD)"
+  cd "$srcdir/$_gitname"
+  printf "%s.r%s.%s" "$(awk -F '=' \
+    '{if (/^wrapper_version=/) {print $2}}' \
+    'steam-wrapper')" \
+    "$(git rev-list --count HEAD)" \
+    "$(git rev-parse --short HEAD)"
 }
 
 package() {
-	cd "$srcdir/$_gitname"
+  cd "$srcdir/$_gitname"
 
-	# Install the script
-	install -Dm 755 "${_gitname}" "${pkgdir}/usr/bin/${_gitname}"
+  # Install the script
+  install -Dm 755 "${_gitname}" "${pkgdir}/usr/bin/${_gitname}"
+    # Install the desktop file
+    -Dm644 "${_gitname}.desktop" \
+    "${pkgdir}/usr/share/applications/${_gitname}.desktop"
 
-	# Install the desktop file
-	install -Dm644 "${_gitname}.desktop" \
-                "${pkgdir}/usr/share/applications/${_gitname}.desktop"
-
-	# Install the default configuration
-	install -Dm 644 "${_gitname}.conf" \
-                "${pkgdir}/etc/${_gitname}/${_gitname}.conf"
+    # Install the default configuration
+    -Dm 644 "${_gitname}.conf" \
+    "${pkgdir}/etc/${_gitname}/${_gitname}.conf"
 }
 

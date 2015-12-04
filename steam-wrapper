@@ -198,7 +198,6 @@ main()
     logdir="$HOME/.steam-wrapper/"
   fi
 
-    logdir="$HOME/.steam-wrapper/"
   # Create logdir
   log="$logdir/steam-wrapper.log"
   mkdir -p "${logdir}"

@@ -17,9 +17,8 @@ wrapper_version=0.1.10
 ##
 check_binary() {
   if ! which "$1" > /dev/null 2>&1; then
-    printf "The '%s' binary is required for operation of this" "$1"
-                printf " script.\n"
-    printf "Please install '%s' onto your system.\n" "$1"
+    printf -- "The '%s' binary is required for operation of this script.\n" "$1"
+    printf -- "Please install '%s' onto your system.\n" "$1"
     exit 1
   fi
 }
@@ -30,10 +29,8 @@ check_binary() {
 log_opening()
 {
   if [[ "${debug}" -eq 1 ]]; then
-    echo -n "steam-wrapper[${wrapper_version}]: Launched on " \
-                        >> "${log}"
-    echo "$(date +%Y-%m-%d) at $(date +%R) [$(date +%r)]" \
-                        >> "$log"
+    printf -- "steam-wrapper[${wrapper_version}]: Launched on " >> "${log}"
+    printf -- "$(date +%Y-%m-%d) at $(date +%R) [$(date +%r)]\n" >> "${log}"
   fi
 }
 
@@ -43,17 +40,11 @@ log_opening()
 log_config_location()
 {
   if [[ "${debug}" -eq 1 ]]; then
-    if [[ $conf_location != "" ]]; then
-      echo -n "steam-wrapper[${wrapper_version}]: " \
-                                >> "${log}"
-      echo -n "Configuration file " >> "${log}"
-      echo "found at: $conf_location" >> "${log}"
+    printf -- "steam-wrapper[${wrapper_version}]: " >> "${log}"
+    if [[ ! -z ${conf_location} ]]; then
+      printf -- "Configuration file found at: ${conf_location}\n" >> "${log}"
     else
-      echo -n "steam-wrapper[${wrapper_version}]: " \
-                                >> "${log}"
-      echo -n "No configuration " >> "${log}"
-      echo -n "file found: " >> "${log}"
-      echo "Using preset defaults." >> "${log}"
+      printf -- "Using preset defaults.\n" >> "${log}"
     fi
   fi
 }
@@ -64,16 +55,18 @@ log_config_location()
 steam_folder_exists()
 {
   if [[ -d $HOME/.steam ]]; then
-    echo -n "steam-wrapper[${wrapper_version}]: Steam folder " \
-                        >> "${log}"
-    echo "exists, can continue" >> "${log}"
+    if [[ "${debug}" -eq 1 ]]; then
+      printf -- "steam-wrapper[${wrapper_version}]: " >> "${log}"
+      printf -- "Steam folder exists, can continue\n" >> "${log}"
+    fi
     return 0
   else
-    echo -n "steam-wrapper[${wrapper_version}]: Steam folder " \
-                        >> "${log}"
-    echo "doesn't exist, launch Steam first" >> "${log}"
-    echo -n "steam-wrapper[${wrapper_version}]: Steam folder "
-    echo "doesn't exist, launch Steam first"
+    if [[ "${debug}" -eq 1 ]]; then
+      printf -- "steam-wrapper[${wrapper_version}]: " >> "${log}"
+      printf -- "Steam folder does not exist, launch Steam once first\n" >> "${log}"
+    fi
+    printf -- "steam-wrapper[${wrapper_version}]: "
+    printf -- "Steam folder does not exist, launch Steam once first\n"
     return 1
   fi
 }
@@ -87,30 +80,21 @@ steam_folder_exists()
 remove_stale_files()
 {
   if [[ "${debug}" -eq 1 ]]; then
-    echo -n "steam-wrapper[${wrapper_version}]: Attempting " \
-                        >> "${log}"
-    echo "removal of stale libraries..." >> "${log}"
-                find $HOME/.steam/root/ \( -name "libgcc_s.so*" \
-                        -o -name "libasound.so*" \
-                        -o -name "libstdc++.so*" \
-                        -o -name "libxcb.so*" \) \
-                        -print -delete >> "${log}"
-                find $HOME/.local/share/Steam/ \( -name "libgcc_s.so*" \
-                        -o -name "libasound.so*" \
-                        -o -name "libstdc++.so*" \
-                        -o -name "libxcb.so*" \) \
-                        -print -delete >> "${log}"
+    printf -- "steam-wrapper[${wrapper_version}]: " >> "${log}"
+    printf -- "Attempting removal of stale libraries...\n" >> "${log}"
+    find $HOME/.steam/root/ \( -name "libgcc_s.so*" \
+      -o -name "libasound.so*" -o -name "libstdc++.so*" \
+      -o -name "libxcb.so*" \) -print -delete >> "${log}"
+    find $HOME/.local/share/Steam/ \( -name "libgcc_s.so*" \
+      -o -name "libasound.so*" -o -name "libstdc++.so*" \
+      -o -name "libxcb.so*" \) -print -delete >> "${log}"
   else
-                find $HOME/.steam/root/ \( -name "libgcc_s.so*" \
-                        -o -name "libasound.so*" \
-                        -o -name "libstdc++.so*" \
-                        -o -name "libxcb.so*" \) \
-                        -delete
-                find $HOME/.local/share/Steam/ \( -name "libgcc_s.so*" \
-                        -o -name "libasound.so*" \
-                        -o -name "libstdc++.so*" \
-                        -o -name "libxcb.so*" \) \
-                        -delete
+    find $HOME/.steam/root/ \( -name "libgcc_s.so*" \
+      -o -name "libasound.so*" -o -name "libstdc++.so*" \
+      -o -name "libxcb.so*" \) -delete
+    find $HOME/.local/share/Steam/ \( -name "libgcc_s.so*" \
+      -o -name "libasound.so*" -o -name "libstdc++.so*" \
+      -o -name "libxcb.so*" \) -delete
   fi
 }
 
@@ -121,18 +105,14 @@ link_lib32_flash()
 {
   local arch=$(uname -m)
   if [[ $arch = "x86_64" ]]; then
-    [[ "${debug}" -eq 1 ]] && {
-      echo -n "steam-wrapper[${wrapper_version}]: " \
-                                >> "${log}"
-      echo -n "Attempt linking of lib32 " >> "${log}"
-      echo "libflashplayer.so" >> "${log}"
-    }
+    if [[ "${debug}" -eq 1 ]]; then
+      printf -- "steam-wrapper[${wrapper_version}]: " >> "${log}"
+      printf -- "Attempt linking of lib32 libflashplayer.so\n" >> "${log}"
+    fi
     if [[ -f $HOME/.steam/bin/plugins/libflashplayer.so ]]; then
       if [[ "${debug}" -eq 1 ]]; then
-        echo -n "steam-wrapper[${wrapper_version}]: " \
-                                        >> "${log}"
-        echo "Flashplayer is already linked." \
-                                        >> "${log}"
+        printf -- "steam-wrapper[${wrapper_version}]: " >> "${log}"
+        printf -- "Flashplayer is already linked.\n" >> "${log}"
       fi
     elif [[ -f /usr/lib32/mozilla/plugins/libflashplayer.so ]]; then
       mkdir -p $HOME/.steam/bin/plugins
@@ -143,15 +123,13 @@ link_lib32_flash()
       ln -sf /usr/lib32/mozilla/plugins/libflashplayer.so \
         $HOME/.steam/bin/plugins/libflashplayer.so
       if [[ "${debug}" -eq 1 ]]; then
-        echo -n "steam-wrapper[${wrapper_version}]: " \
-                                        >> "${log}"
-        echo "Linked libflashplayer.so" >> "${log}"
+        printf -- "steam-wrapper[${wrapper_version}]: " >> "${log}"
+        printf -- "Linked libflashplayer.so\n" >> "${log}"
       fi
     else
       if [[ "${debug}" -eq 1 ]]; then
-        echo -n "steam-wrapper[${wrapper_version}]: " \
-                                        >> "${log}"
-        echo "Cannot find libflashplayer.so" >> "${log}"
+        printf -- "steam-wrapper[${wrapper_version}]: " >> "${log}"
+        printf -- "Cannot find libflashplayer.so\n" >> "${log}"
       fi
     fi
   fi
@@ -164,17 +142,14 @@ link_lib32_flash()
 log_wrapper_usage()
 {
   if [[ "${debug}" -eq 1 ]]; then
-    echo "steam-wrapper[${wrapper_version}]: Done." >> "${log}"
-    echo -n "steam-wrapper[${wrapper_version}]: Launching" \
-                        >> "${log}"
-    echo " Steam with environment:" >> "${log}"
-    echo -n "steam-wrapper[${wrapper_version}]:" >> "${log}"
-                echo -n "    STEAM_RUNTIME =" >> "${log}"
-    echo " ${use_runtime}" >> "${log}"
-    echo -n "steam-wrapper[${wrapper_version}]:    " >> "${log}"
-    echo -n "STEAM_FRAME_FORCE_CLOSE = " >> "${log}"
-    echo "${close_to_tray}" >> "${log}"
-    echo >> "${log}"
+    printf -- "steam-wrapper[${wrapper_version}]: Done.\n" >> "${log}"
+    printf -- "steam-wrapper[${wrapper_version}]: " >> "${log}"
+    printf -- "Launching Steam with environment:\n" >> "${log}"
+    printf -- "steam-wrapper[${wrapper_version}]: " >> "${log}"
+    printf -- "    STEAM_RUNTIME = %s\n" "${use_runtime}" >> "${log}"
+    printf -- "steam-wrapper[${wrapper_version}]: " >> "${log}"
+    printf -- "    STEAM_FRAME_FORCE_CLOSE = %s\n" "${close_to_tray}" >> "${log}"
+    printf -- "\n" >> "${log}"
   fi
 }
 
@@ -194,7 +169,7 @@ find_conf()
   elif [[ -f /etc/steam-wrapper.conf ]]; then
     conf_location="/etc/steam-wrapper.conf"
   fi
-  echo "${conf_location}"
+  printf -- "${conf_location}"
   unset conf_location
 }
 
@@ -239,17 +214,17 @@ main()
       "1"|"on"|"ON"|"yes"|"YES"|"y"|"Y")
         use_runtime=1
         if [[ "${debug}" -eq 1 ]]; then
-          echo -n "steam-wrapper[${wrapper_version}]:" >> "${log}"
-          echo -n " Value of: \$use_runtime overwritten" >> "${log}"
-          echo "  by cmd argument: ${use_runtime}" >> "${log}"
+          printf -- "steam-wrapper[${wrapper_version}]:" >> "${log}"
+          printf -- " Value of: \$use_runtime overwritten" >> "${log}"
+          printf -- " by cmd argument: %s\n" "${use_runtime}" >> "${log}"
         fi
         ;;
       "0"|"off"|"OFF"|"no"|"NO"|"n"|"N")
         use_runtime=0
         if [[ "${debug}" -eq 1 ]]; then
-          echo -n "steam-wrapper[${wrapper_version}]:" >> "${log}"
-          echo -n " Value of: \$use_runtime overwritten" >> "${log}"
-          echo "  by cmd argument: ${use_runtime}" >> "${log}"
+          printf -- "steam-wrapper[${wrapper_version}]:" >> "${log}"
+          printf -- " Value of: \$use_runtime overwritten" >> "${log}"
+          printf -- " by cmd argument: %s\n" "${use_runtime}" >> "${log}"
         fi
         ;;
       *)
@@ -264,17 +239,17 @@ main()
         "1"|"on"|"ON"|"yes"|"YES"|"y"|"Y")
           close_to_tray=1
           if [[ "${debug}" -eq 1 ]]; then
-            echo -n "steam-wrapper[${wrapper_version}]:" >> "${log}"
-            echo -n " Value of: \$close_to_tray overwritten" >> ${log}
-            echo "  by cmd argument: ${close_to_tray}" >> "${log}"
+          printf -- "steam-wrapper[${wrapper_version}]:" >> "${log}"
+          printf -- " Value of: \$close_to_tray overwritten" >> "${log}"
+          printf -- " by cmd argument: %s\n" "${close_to_tray}" >> "${log}"
           fi
           ;;
         "0"|"off"|"OFF"|"no"|"NO"|"n"|"N")
           close_to_tray=0
           if [[ "${debug}" -eq 1 ]]; then
-            echo -n "steam-wrapper[${wrapper_version}]:" >> "${log}"
-            echo -n " Value of: \$close_to_tray overwritten" >> ${log}
-            echo "  by cmd argument: ${close_to_tray}" >> "${log}"
+          printf -- "steam-wrapper[${wrapper_version}]:" >> "${log}"
+          printf -- " Value of: \$close_to_tray overwritten" >> "${log}"
+          printf -- " by cmd argument: %s\n" "${close_to_tray}" >> "${log}"
           fi
           ;;
         *)

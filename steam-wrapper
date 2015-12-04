@@ -282,6 +282,7 @@ main()
 # Check for required binaries, exit out if they are not present
 check_binary find
 check_binary printf
+check_binary steam
 
 main $@ || exit 1
 exit 0

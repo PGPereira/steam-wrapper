@@ -54,7 +54,7 @@ log_config_location()
 ##
 steam_folder_exists()
 {
-  if [[ -d $HOME/.steam ]]; then
+  if [[ -d "${HOME}/.steam" ]]; then
     if [[ "${debug}" -eq 1 ]]; then
       printf -- "steam-wrapper[${wrapper_version}]: " >> "${log}"
       printf -- "Steam folder exists, can continue\n" >> "${log}"
@@ -82,17 +82,17 @@ remove_stale_files()
   if [[ "${debug}" -eq 1 ]]; then
     printf -- "steam-wrapper[${wrapper_version}]: " >> "${log}"
     printf -- "Attempting removal of stale libraries...\n" >> "${log}"
-    find $HOME/.steam/root/ \( -name "libgcc_s.so*" \
+    find "${HOME}/.steam/root/" \( -name "libgcc_s.so*" \
       -o -name "libasound.so*" -o -name "libstdc++.so*" \
       -o -name "libxcb.so*" \) -print -delete >> "${log}"
-    find $HOME/.local/share/Steam/ \( -name "libgcc_s.so*" \
+    find "${HOME}/.local/share/Steam/" \( -name "libgcc_s.so*" \
       -o -name "libasound.so*" -o -name "libstdc++.so*" \
       -o -name "libxcb.so*" \) -print -delete >> "${log}"
   else
-    find $HOME/.steam/root/ \( -name "libgcc_s.so*" \
+    find "${HOME}/.steam/root/" \( -name "libgcc_s.so*" \
       -o -name "libasound.so*" -o -name "libstdc++.so*" \
       -o -name "libxcb.so*" \) -delete
-    find $HOME/.local/share/Steam/ \( -name "libgcc_s.so*" \
+    find "${HOME}/.local/share/Steam/" \( -name "libgcc_s.so*" \
       -o -name "libasound.so*" -o -name "libstdc++.so*" \
       -o -name "libxcb.so*" \) -delete
   fi
@@ -109,19 +109,19 @@ link_lib32_flash()
       printf -- "steam-wrapper[${wrapper_version}]: " >> "${log}"
       printf -- "Attempt linking of lib32 libflashplayer.so\n" >> "${log}"
     fi
-    if [[ -f $HOME/.steam/bin/plugins/libflashplayer.so ]]; then
+    if [[ -f "${HOME}/.steam/bin/plugins/libflashplayer.so" ]]; then
       if [[ "${debug}" -eq 1 ]]; then
         printf -- "steam-wrapper[${wrapper_version}]: " >> "${log}"
         printf -- "Flashplayer is already linked.\n" >> "${log}"
       fi
-    elif [[ -f /usr/lib32/mozilla/plugins/libflashplayer.so ]]; then
-      mkdir -p $HOME/.steam/bin/plugins
+    elif [[ -f "/usr/lib32/mozilla/plugins/libflashplayer.so" ]]; then
+      mkdir -p "${HOME}/.steam/bin/plugins"
       ##
       # This path to the flashplugin may be different on
       # other distributions, this is the path on ArchLinux.
       ##
       ln -sf /usr/lib32/mozilla/plugins/libflashplayer.so \
-        $HOME/.steam/bin/plugins/libflashplayer.so
+        "${HOME}/.steam/bin/plugins/libflashplayer.so"
       if [[ "${debug}" -eq 1 ]]; then
         printf -- "steam-wrapper[${wrapper_version}]: " >> "${log}"
         printf -- "Linked libflashplayer.so\n" >> "${log}"
@@ -160,10 +160,10 @@ log_wrapper_usage()
 find_conf()
 {
   local conf_location=""
-  if [[ -f $HOME/.steam-wrapper/steam-wrapper.conf ]]; then
-    conf_location="$HOME/.steam-wrapper/steam-wrapper.conf"
-  elif [[ -f $HOME/.steam-wrapper.conf ]]; then
-    conf_location="$HOME/.steam-wrapper.conf"
+  if [[ -f ${HOME}/.steam-wrapper/steam-wrapper.conf ]]; then
+    conf_location="${HOME}/.steam-wrapper/steam-wrapper.conf"
+  elif [[ -f ${HOME}/.steam-wrapper.conf ]]; then
+    conf_location="${HOME}/.steam-wrapper.conf"
   elif [[ -f /etc/steam-wrapper/steam-wrapper.conf ]]; then
     conf_location="/etc/steam-wrapper/steam-wrapper.conf"
   elif [[ -f /etc/steam-wrapper.conf ]]; then
@@ -195,11 +195,11 @@ main()
     debug=1
     use_runtime=1
     close_to_tray=1
-    logdir="$HOME/.steam-wrapper/"
+    logdir="${HOME}/.steam-wrapper/"
   fi
 
   # Create logdir
-  log="$logdir/steam-wrapper.log"
+  log="${logdir}/steam-wrapper.log"
   mkdir -p "${logdir}"
 
   log_opening || return 1

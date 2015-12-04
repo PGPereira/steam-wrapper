@@ -29,7 +29,7 @@ check_binary() {
 ##
 log_opening()
 {
-  if [[ "${WRAPPER_DEBUG}" -eq 1 ]]; then
+  if [[ "${debug}" -eq 1 ]]; then
     echo -n "steam-wrapper[${wrapper_version}]: Launched on " \
                         >> "${log}"
     echo "$(date +%Y-%m-%d) at $(date +%R) [$(date +%r)]" \
@@ -42,7 +42,7 @@ log_opening()
 ##
 log_config_location()
 {
-  if [[ "${WRAPPER_DEBUG}" -eq 1 ]]; then
+  if [[ "${debug}" -eq 1 ]]; then
     if [[ $conf_location != "" ]]; then
       echo -n "steam-wrapper[${wrapper_version}]: " \
                                 >> "${log}"
@@ -52,7 +52,7 @@ log_config_location()
       echo -n "steam-wrapper[${wrapper_version}]: " \
                                 >> "${log}"
       echo -n "No configuration " >> "${log}"
-      echo "file found" >> "${log}"
+      echo -n "file found: " >> "${log}"
       echo "Using preset defaults." >> "${log}"
     fi
   fi
@@ -86,7 +86,7 @@ steam_folder_exists()
 ##
 remove_stale_files()
 {
-  if [[ "${WRAPPER_DEBUG}" -eq 1 ]]; then
+  if [[ "${debug}" -eq 1 ]]; then
     echo -n "steam-wrapper[${wrapper_version}]: Attempting " \
                         >> "${log}"
     echo "removal of stale libraries..." >> "${log}"
@@ -121,14 +121,14 @@ link_lib32_flash()
 {
   local arch=$(uname -m)
   if [[ $arch = "x86_64" ]]; then
-    [[ "${WRAPPER_DEBUG}" -eq 1 ]] && {
+    [[ "${debug}" -eq 1 ]] && {
       echo -n "steam-wrapper[${wrapper_version}]: " \
                                 >> "${log}"
       echo -n "Attempt linking of lib32 " >> "${log}"
       echo "libflashplayer.so" >> "${log}"
     }
     if [[ -f $HOME/.steam/bin/plugins/libflashplayer.so ]]; then
-      if [[ "${WRAPPER_DEBUG}" -eq 1 ]]; then
+      if [[ "${debug}" -eq 1 ]]; then
         echo -n "steam-wrapper[${wrapper_version}]: " \
                                         >> "${log}"
         echo "Flashplayer is already linked." \
@@ -142,13 +142,13 @@ link_lib32_flash()
       ##
       ln -sf /usr/lib32/mozilla/plugins/libflashplayer.so \
         $HOME/.steam/bin/plugins/libflashplayer.so
-      if [[ "${WRAPPER_DEBUG}" -eq 1 ]]; then
+      if [[ "${debug}" -eq 1 ]]; then
         echo -n "steam-wrapper[${wrapper_version}]: " \
                                         >> "${log}"
         echo "Linked libflashplayer.so" >> "${log}"
       fi
     else
-      if [[ "${WRAPPER_DEBUG}" -eq 1 ]]; then
+      if [[ "${debug}" -eq 1 ]]; then
         echo -n "steam-wrapper[${wrapper_version}]: " \
                                         >> "${log}"
         echo "Cannot find libflashplayer.so" >> "${log}"
@@ -163,17 +163,17 @@ link_lib32_flash()
 ##
 log_wrapper_usage()
 {
-  if [[ "${WRAPPER_DEBUG}" -eq 1 ]]; then
+  if [[ "${debug}" -eq 1 ]]; then
     echo "steam-wrapper[${wrapper_version}]: Done." >> "${log}"
     echo -n "steam-wrapper[${wrapper_version}]: Launching" \
                         >> "${log}"
     echo " Steam with environment:" >> "${log}"
     echo -n "steam-wrapper[${wrapper_version}]:" >> "${log}"
                 echo -n "    STEAM_RUNTIME =" >> "${log}"
-    echo " ${WRAPPER_USE_RUNTIME}" >> "${log}"
+    echo " ${use_runtime}" >> "${log}"
     echo -n "steam-wrapper[${wrapper_version}]:    " >> "${log}"
     echo -n "STEAM_FRAME_FORCE_CLOSE = " >> "${log}"
-    echo "${WRAPPER_CLOSE_TO_TRAY}" >> "${log}"
+    echo "${close_to_tray}" >> "${log}"
     echo >> "${log}"
   fi
 }
@@ -200,11 +200,6 @@ find_conf()
 
 main()
 {
-
-  # Check for required binaries, exit out if they are not present
-  check_binary find
-  check_binary printf
-
   local conf_location=
   local debug=
   local use_runtime=
@@ -228,11 +223,68 @@ main()
     logdir="$HOME/.steam-wrapper/"
   fi
 
-  log="$WRAPPER_LOGDIR/steam-wrapper.log"
-  mkdir -p "${WRAPPER_LOGDIR}"
+    logdir="$HOME/.steam-wrapper/"
+  # Create logdir
+  log="$logdir/steam-wrapper.log"
+  mkdir -p "${logdir}"
 
   log_opening || return 1
   log_config_location || return 1
+
+  # Allow the user to over ride the runtime and close to tray by
+  # passing in command line arguments
+  # Use runtime
+  if [[ ! -z "$1" ]]; then
+    case "$1" in
+      "1"|"on"|"ON"|"yes"|"YES"|"y"|"Y")
+        use_runtime=1
+        if [[ "${debug}" -eq 1 ]]; then
+          echo -n "steam-wrapper[${wrapper_version}]:" >> "${log}"
+          echo -n " Value of: \$use_runtime overwritten" >> "${log}"
+          echo "  by cmd argument: ${use_runtime}" >> "${log}"
+        fi
+        ;;
+      "0"|"off"|"OFF"|"no"|"NO"|"n"|"N")
+        use_runtime=0
+        if [[ "${debug}" -eq 1 ]]; then
+          echo -n "steam-wrapper[${wrapper_version}]:" >> "${log}"
+          echo -n " Value of: \$use_runtime overwritten" >> "${log}"
+          echo "  by cmd argument: ${use_runtime}" >> "${log}"
+        fi
+        ;;
+      *)
+        printf -- "Invalid option passed.\n"
+        return 1
+        ;;
+    esac
+
+    # Close to tray
+    if [[ ! -z "$2" ]]; then
+      case "$2" in
+        "1"|"on"|"ON"|"yes"|"YES"|"y"|"Y")
+          close_to_tray=1
+          if [[ "${debug}" -eq 1 ]]; then
+            echo -n "steam-wrapper[${wrapper_version}]:" >> "${log}"
+            echo -n " Value of: \$close_to_tray overwritten" >> ${log}
+            echo "  by cmd argument: ${close_to_tray}" >> "${log}"
+          fi
+          ;;
+        "0"|"off"|"OFF"|"no"|"NO"|"n"|"N")
+          close_to_tray=0
+          if [[ "${debug}" -eq 1 ]]; then
+            echo -n "steam-wrapper[${wrapper_version}]:" >> "${log}"
+            echo -n " Value of: \$close_to_tray overwritten" >> ${log}
+            echo "  by cmd argument: ${close_to_tray}" >> "${log}"
+          fi
+          ;;
+        *)
+          printf -- "Invalid option passed.\n"
+          return 1
+          ;;
+      esac
+    fi
+  fi
+
   steam_folder_exists || return 1
   remove_stale_files || return 1
   link_lib32_flash || return 1
@@ -253,7 +305,11 @@ main()
   return 0
 }
 
-main || exit 1
+# Check for required binaries, exit out if they are not present
+check_binary find
+check_binary printf
+
+main $@ || exit 1
 exit 0
 
 # vim: set syntax=sh tabstop=2 softtabstop=2 shiftwidth=2 shiftround expandtab:

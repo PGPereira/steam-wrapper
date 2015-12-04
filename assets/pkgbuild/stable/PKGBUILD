@@ -2,7 +2,7 @@
 
 pkgname=steam-wrapper
 pkgdesc="Steam wrapper for common operations"
-pkgver=0.1.9
+pkgver=0.2.0
 pkgrel=1
 arch=('i686' 'x86_64')
 optdepends=('steam-native: Native runtime library support' \
@@ -14,7 +14,7 @@ conflicts=('steam-wrapper')
 license=('GPLv2')
 url="https://github.com/pyamsoft/${pkgname}/archive/${pkgver}.tar.gz"
 source=("$url")
-sha256sums=('fc196dc9057a2959e63354707a5310c993f083c5fc112e5d5cc66cec86fbb6b4')
+sha256sums=('46da22d704e26dbe77dc9deba5ecca9adadc03f734384fee531e9537492eb177')
 
 package() {
   cd "$srcdir"/"$pkgname-$pkgver"

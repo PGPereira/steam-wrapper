@@ -232,9 +232,12 @@ main()
         ;;
     esac
 
+    # Shift arguments by 1
+    shift
+
     # Close to tray
-    if [[ ! -z "$2" ]]; then
-      case "$2" in
+    if [[ ! -z "$1" ]]; then
+      case "$1" in
         "1"|"on"|"ON"|"yes"|"YES"|"y"|"Y")
           close_to_tray=1
           if [[ "${debug}" -eq 1 ]]; then
@@ -257,6 +260,9 @@ main()
           ;;
       esac
     fi
+
+    # Shift arguments by 1
+    shift
   fi
 
   steam_folder_exists || return 1

@@ -23,10 +23,11 @@ log_location=
 ##
 # Check the environment path for the given binary, exit if it is not found
 ##
-check_binary() {
+check_binary()
+{
   if ! which "$1" > /dev/null 2>&1; then
-    printf -- "The '%s' binary is required for operation of this script.\n" "$1"
-    printf -- "Please install '%s' onto your system.\n" "$1"
+    printf -- "The '$1' binary is required for operation of this script.\n"
+    printf -- "Please install '$1' onto your system.\n"
     exit 1
   fi
 }
@@ -209,12 +210,16 @@ prepare()
 
   # Create logdir
   log_location="${logdir}/steam-wrapper.log"
-  mkdir -p "${logdir}"
+  check_binary mkdir || return 1
+  mkdir -p "${logdir}" || return 1
 }
-
 
 main()
 {
+  prepare || return 1
+  check_binary find || return 1
+  check_binary steam || return 1
+
   log_opening || return 1
   log_config_location || return 1
   steam_folder_exists || return 1
@@ -290,11 +295,6 @@ main()
 }
 
 # Check for required binaries, exit out if they are not present
-check_binary find
-check_binary printf
-check_binary steam
-
-prepare || exit 1
 main $@ || exit 1
 exit 0
 

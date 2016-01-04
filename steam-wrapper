@@ -77,13 +77,32 @@ steam_folder_exists()
 ##
 remove_stale_files()
 {
+  local location_one="${HOME}/.local/share/Steam/"
+  local location_two="${HOME}/.steam/root/"
   logn "steam-wrapper[${wrapper_version}]: Removing of stale libraries..."
-  find "${HOME}/.steam/root/" \( -name "libgcc_s.so*" \
-    -o -name "libasound.so*" -o -name "libstdc++.so*" \
-    -o -name "libxcb.so*" \) -print -fprint "${log_location}" -delete
-  find "${HOME}/.local/share/Steam/" \( -name "libgcc_s.so*" \
-    -o -name "libasound.so*" -o -name "libstdc++.so*" \
-    -o -name "libxcb.so*" \) -print -fprint "${log_location}" -delete
+
+  # Need to double up on these as the output will overwrite the logfile
+  # Print to stdout and don't remove, then print to file and delete
+  find_remove_stale_files "${location_one}" " "
+  find_remove_stale_files "${location_two}" " "
+
+  find_remove_stale_files "${location_one}" "-delete" >> "${log_location}"
+  find_remove_stale_files "${location_two}" "-delete" >> "${log_location}"
+
+  unset location_one location_two
+}
+
+##
+# Remove some files that apperantly conflict with native runtimes on ArchLinux
+#
+# Takes find start location as $1 and the delete option as $2 when used
+##
+find_remove_stale_files()
+{
+  find "$1" \( -name "libgcc_s.so*" \
+    -o -name "libasound.so*" \
+    -o -name "libstdc++.so*" \
+    -o -name "libxcb.so*" \) -print $2
 }
 
 ##
@@ -198,6 +217,10 @@ main()
 {
   log_opening || return 1
   log_config_location || return 1
+  steam_folder_exists || return 1
+  remove_stale_files || return 1
+  link_lib32_flash || return 1
+  log_wrapper_usage || return 1
 
   # Allow the user to over ride the runtime and close to tray by
   # passing in command line arguments
@@ -251,10 +274,9 @@ main()
     shift
   fi
 
-  steam_folder_exists || return 1
-  remove_stale_files || return 1
-  link_lib32_flash || return 1
-  log_wrapper_usage || return 1
+  # Log completion
+  # Extra newline
+  logn "steam-wrapper[${wrapper_version}]: Run complete, launch Steam\n"
 
   ##
   # Run steam using the wrapper
@@ -272,27 +294,7 @@ check_binary find
 check_binary printf
 check_binary steam
 
-conf_location=$(find_conf) || return 1
-
-##
-# If a configuration file was present, source it for use, otherwise
-# we will use pre-defined varialbes which are arguably sensible by
-# default.
-##
-if [[ ! -z "${conf_location}" ]]; then
-  source "${conf_location}"
-else
-  debug=1
-  use_runtime=1
-  close_to_tray=1
-  logdir="${HOME}/.steam-wrapper/"
-fi
-
-# Create logdir
-log_location="${logdir}/steam-wrapper.log"
-mkdir -p "${logdir}"
-
-# prepare || exit 1
+prepare || exit 1
 main $@ || exit 1
 exit 0
 

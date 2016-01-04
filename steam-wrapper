@@ -26,8 +26,8 @@ log_location=
 check_binary()
 {
   if ! which "$1" > /dev/null 2>&1; then
-    printf -- "The '$1' binary is required for operation of this script.\n"
-    printf -- "Please install '$1' onto your system.\n"
+    logn "The '$1' binary is required for operation of this script."
+    logn "Please install '$1' onto your system."
     exit 1
   fi
 }
@@ -100,10 +100,12 @@ remove_stale_files()
 ##
 find_remove_stale_files()
 {
-  find "$1" \( -name "libgcc_s.so*" \
-    -o -name "libasound.so*" \
-    -o -name "libstdc++.so*" \
-    -o -name "libxcb.so*" \) -print $2
+  if [[ -d "$1" ]]; then
+    find "$1" \( -name "libgcc_s.so*" \
+      -o -name "libasound.so*" \
+      -o -name "libstdc++.so*" \
+      -o -name "libxcb.so*" \) -print $2
+  fi
 }
 
 ##

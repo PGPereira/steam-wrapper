@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 #  Copyright (C) 2015 - 2016 Peter Kenji Yamanaka
 #
 #  This program is free software; you can redistribute it and/or modify
@@ -14,8 +14,6 @@
 #  You should have received a copy of the GNU General Public License along
 #  with this program; if not, write to the Free Software Foundation, Inc.,
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
-set -o pipefail
 
 ##
 # Wrapper wrapper_version
@@ -62,7 +60,7 @@ log_opening()
 log_config_location()
 {
   log "steam-wrapper[${wrapper_version}]: "
-  if [[ ! -z ${conf_location} ]]; then
+  if [ ! -z "${conf_location}" ]; then
     logn "Configuration file found at: ${conf_location}"
   else
     logn "Using preset defaults."
@@ -74,7 +72,7 @@ log_config_location()
 ##
 steam_folder_exists()
 {
-  if [[ -d "${HOME}/.steam" ]]; then
+  if [ -d "${HOME}/.steam" ]; then
     log "steam-wrapper[${wrapper_version}]: "
     logn "Steam folder exists, can continue"
     return 0
@@ -115,7 +113,7 @@ remove_stale_files()
 ##
 find_remove_stale_files()
 {
-  if [[ -d "$1" ]]; then
+  if [ -d "$1" ]; then
     find "$1" \( -name "libgcc_s.so*" \
       -o -name "libasound.so*" \
       -o -name "libstdc++.so*" \
@@ -132,11 +130,11 @@ link_lib32_flash()
   local arch=$(uname -m)
   local flash_steam_location="${HOME}/.steam/bin/plugins/libflashplayer.so"
   local flash_lib_location="/usr/lib32/mozilla/plugins/libflashplayer.so"
-  if [[ "${arch}" = "${xbit}" ]]; then
+  if [ "${arch}" = "${xbit}" ]; then
     logn "steam-wrapper[${wrapper_version}]: Linking lib32-libflashplayer.so"
-    if [[ -f "${flash_steam_location}" ]]; then
+    if [ -f "${flash_steam_location}" ]; then
       logn "steam-wrapper[${wrapper_version}]: Flashplayer is already linked."
-    elif [[ -f "${flash_lib_location}" ]]; then
+    elif [ -f "${flash_lib_location}" ]; then
       mkdir -p "${HOME}/.steam/bin/plugins"
       ##
       # This path to the flashplugin may be different on
@@ -171,13 +169,13 @@ log_wrapper_usage()
 find_conf()
 {
   local conf_location=""
-  if [[ -f ${HOME}/.steam-wrapper/steam-wrapper.conf ]]; then
+  if [ -f "${HOME}/.steam-wrapper/steam-wrapper.conf" ]; then
     conf_location="${HOME}/.steam-wrapper/steam-wrapper.conf"
-  elif [[ -f ${HOME}/.steam-wrapper.conf ]]; then
+  elif [ -f "${HOME}/.steam-wrapper.conf" ]; then
     conf_location="${HOME}/.steam-wrapper.conf"
-  elif [[ -f /etc/steam-wrapper/steam-wrapper.conf ]]; then
+  elif [ -f "/etc/steam-wrapper/steam-wrapper.conf" ]; then
     conf_location="/etc/steam-wrapper/steam-wrapper.conf"
-  elif [[ -f /etc/steam-wrapper.conf ]]; then
+  elif [ -f "/etc/steam-wrapper.conf" ]; then
     conf_location="/etc/steam-wrapper.conf"
   fi
   printf -- "${conf_location}"
@@ -189,7 +187,7 @@ find_conf()
 ##
 log()
 {
-  if [[ "${debug}" -eq 1 ]]; then
+  if [ "${debug}" -eq 1 ]; then
     printf -- "$@" >> "${log_location}"
   fi
 
@@ -216,7 +214,7 @@ prepare()
   # we will use pre-defined varialbes which are arguably sensible by
   # default.
   ##
-  if [[ ! -z "${conf_location}" ]]; then
+  if [ ! -z "${conf_location}" ]; then
     source "${conf_location}"
   else
     debug=1
@@ -247,7 +245,7 @@ main()
   # Allow the user to over ride the runtime and close to tray by
   # passing in command line arguments
   # Use runtime
-  if [[ ! -z "$1" ]]; then
+  if [ ! -z "$1" ]; then
     case "$1" in
       "1"|"on"|"ON"|"yes"|"YES"|"y"|"Y")
         use_runtime=1
@@ -271,7 +269,7 @@ main()
     shift
 
     # Close to tray
-    if [[ ! -z "$1" ]]; then
+    if [ ! -z "$1" ]; then
       case "$1" in
         "1"|"on"|"ON"|"yes"|"YES"|"y"|"Y")
           close_to_tray=1

@@ -276,7 +276,7 @@ option_parse()
         logn " by cmd argument: ${close_to_tray}"
         shift
         ;;
-      "-f"|"--fix")
+      "-f"|"--display-fix")
         fix_for_game="$2"
         shift
         ;;

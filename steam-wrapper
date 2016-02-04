@@ -28,6 +28,10 @@ close_to_tray=
 logdir=
 log_location=
 
+# Steam Options
+steam_options=""
+fix_for_game=""
+
 ##
 # steam-wrapper
 # Packaged by: pyamsoft <pyam(dot)soft(at)gmail(dot)com>
@@ -229,9 +233,94 @@ prepare()
   mkdir -p "${logdir}" || return 1
 }
 
+display_fix_for_game()
+{
+  case "${fix_for_game}" in
+    "bl2"|"borderlands2")
+      printf -- "Borderlands 2\n"
+      echo
+      printf -- "Can't connect to SHIFT\n"
+      echo
+      printf -- "On non-Ubuntu systems, the /usr/lib/ssl directory may\n"
+      printf -- "not always be present. Borderlands 2 expects a certain\n"
+      printf -- "SSL cert to be present in this directory, and SHFIT will\n"
+      printf -- "if it is not found. To fix this, supply the SSL_CERT_DIR in\n"
+      printf -- "the game launch options: \n"
+      echo
+      printf -- "SSL_CERT_DIR=\"/etc/ssl/certs\" %%command%% <launch options>\n"
+      echo
+      ;;
+    *)
+      logn "Unsupported game: ${fix_for_game}"
+  esac
+
+  # Displaying fixes are currently a one stop shop.
+  return 1
+}
+
+option_parse()
+{
+  while [ $# -ge 1 ]; do
+    case "$1" in
+      "-r"|"--use-runtime")
+        use_runtime="$2"
+        log  "steam-wrapper[${wrapper_version}]:"
+        log  " Value of: \$use_runtime overwritten"
+        logn " by cmd argument: ${use_runtime}"
+        shift
+        ;;
+      "-t"|"--close-to-tray")
+        close_to_tray="$2"
+        log  "steam-wrapper[${wrapper_version}]:"
+        log  " Value of: \$close_to_tray overwritten"
+        logn " by cmd argument: ${close_to_tray}"
+        shift
+        ;;
+      "-f"|"--fix")
+        fix_for_game="$2"
+        shift
+        ;;
+      "-h"|"--help")
+        printf -- "steam-wrapper[${wrapper_version}]\n"
+        echo
+        printf -- "option\n"
+        echo
+        printf -- "-r|--use-runtime   <0|1> Use the steam runtime\n"
+        printf -- "-t|--close-to-tray <0|1> Close Steam to tray\n"
+        printf -- "-f|--fix <game>          Display fixes for Steam games\n"
+        echo
+        printf -- "supported fix\n"
+        printf -- "  bl2                    Borderlands 2\n"
+        echo
+        printf -- "-h|--help                Display this help\n"
+        echo
+        return 1
+        ;;
+      *)
+        steam_options="$2 ${steam_options}"
+        shift
+        ;;
+    esac
+  done
+
+  # Check the use_runtime and close_to_tray variable validity
+  if [ "${use_runtime}" != "0" ] && [ "${use_runtime}" != "1" ]; then
+    logn "Bad value specified in \$use_runtime: ${use_runtime}"
+    return 1
+  fi
+
+  if [ "${close_to_tray}" != "0" ] && [ "${close_to_tray}" != "1" ]; then
+    logn "Bad value specified in \$close_to_tray: ${close_to_tray}"
+    return 1
+  fi
+
+  if [ ! -z "${fix_for_game}" ]; then
+    display_fix_for_game || return 1
+  fi
+}
+
 main()
 {
-  prepare || return 1
   check_binary find || return 1
   check_binary steam || return 1
 
@@ -242,57 +331,6 @@ main()
   link_lib32_flash || return 1
   log_wrapper_usage || return 1
 
-  # Allow the user to over ride the runtime and close to tray by
-  # passing in command line arguments
-  # Use runtime
-  if [ ! -z "$1" ]; then
-    case "$1" in
-      "1"|"on"|"ON"|"yes"|"YES"|"y"|"Y")
-        use_runtime=1
-        log  "steam-wrapper[${wrapper_version}]:"
-        log  " Value of: \$use_runtime overwritten"
-        logn " by cmd argument: ${use_runtime}"
-        ;;
-      "0"|"off"|"OFF"|"no"|"NO"|"n"|"N")
-        use_runtime=0
-        log  "steam-wrapper[${wrapper_version}]:"
-        log  " Value of: \$use_runtime overwritten"
-        logn " by cmd argument: ${use_runtime}"
-        ;;
-      *)
-        logn "Invalid option passed."
-        return 1
-        ;;
-    esac
-
-    # Shift arguments by 1
-    shift
-
-    # Close to tray
-    if [ ! -z "$1" ]; then
-      case "$1" in
-        "1"|"on"|"ON"|"yes"|"YES"|"y"|"Y")
-          close_to_tray=1
-          log  "steam-wrapper[${wrapper_version}]:"
-          log  " Value of: \$close_to_tray overwritten"
-          logn " by cmd argument: ${close_to_tray}"
-          ;;
-        "0"|"off"|"OFF"|"no"|"NO"|"n"|"N")
-          close_to_tray=0
-          log  "steam-wrapper[${wrapper_version}]:"
-          log  " Value of: \$close_to_tray overwritten"
-          logn " by cmd argument: ${close_to_tray}"
-          ;;
-        *)
-          logn "Invalid option passed."
-          return 1
-          ;;
-      esac
-    fi
-
-    # Shift arguments by 1
-    shift
-  fi
 
   # Log completion
   # Extra newline
@@ -310,7 +348,9 @@ main()
 }
 
 # Check for required binaries, exit out if they are not present
-main $@ || exit 1
+prepare || exit 1
+option_parse "$@" || exit 1
+main "${steam_options}" || exit 1
 exit 0
 
 # vim: set syntax=sh tabstop=2 softtabstop=2 shiftwidth=2 shiftround expandtab:

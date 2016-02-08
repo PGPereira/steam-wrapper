@@ -31,6 +31,7 @@ log_location=
 # Steam Options
 steam_options=""
 fix_for_game=""
+display_pager=0
 
 ##
 # steam-wrapper
@@ -280,6 +281,10 @@ option_parse()
         fix_for_game="$2"
         shift
         ;;
+      "-l"|"--display-log")
+        display_pager=1
+        shift
+        ;;
       "-h"|"--help")
         printf -- "steam-wrapper[${wrapper_version}]\n"
         echo
@@ -287,7 +292,8 @@ option_parse()
         echo
         printf -- "-r|--use-runtime   <0|1> Use the steam runtime\n"
         printf -- "-t|--close-to-tray <0|1> Close Steam to tray\n"
-        printf -- "-f|--fix <game>          Display fixes for Steam games\n"
+        printf -- "-l|--display-log         Display the log file\n"
+        printf -- "-f|--display-fix <game>  Display fixes for Steam games\n"
         echo
         printf -- "supported fix\n"
         printf -- "  bl2                    Borderlands 2\n"
@@ -350,6 +356,28 @@ main()
 # Check for required binaries, exit out if they are not present
 prepare || exit 1
 option_parse "$@" || exit 1
+
+# Check if pager is set
+# TODO Add support for a $PAGER variable
+if [[ "${display_pager}" -eq 1 ]]; then
+
+  # Check for the PAGER environment variable
+  # Conditional assignment works when using the set -u option
+  : "${PAGER:=less}"
+
+  # Using the pager requires extra binary
+  check_binary "${PAGER}"
+  log "steam-wrapper[${wrapper_version}]: "
+  logn "Displaying ${log_location} in ${PAGER}..."
+
+  "${PAGER}" "${log_location}"
+  log "steam-wrapper[${wrapper_version}]: "
+  logn "Exiting...\n"
+
+  # Clean exit
+  exit 0
+fi
+
 main "${steam_options}" || exit 1
 exit 0
 

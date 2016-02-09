@@ -269,6 +269,7 @@ option_parse()
         log  " Value of: \$use_runtime overwritten"
         logn " by cmd argument: ${use_runtime}"
         shift
+        shift
         ;;
       "-t"|"--close-to-tray")
         close_to_tray="$2"
@@ -276,9 +277,11 @@ option_parse()
         log  " Value of: \$close_to_tray overwritten"
         logn " by cmd argument: ${close_to_tray}"
         shift
+        shift
         ;;
       "-f"|"--display-fix")
         fix_for_game="$2"
+        shift
         shift
         ;;
       "-l"|"--display-log")
@@ -303,7 +306,7 @@ option_parse()
         return 1
         ;;
       *)
-        steam_options="$2 ${steam_options}"
+        steam_options="$1 ${steam_options}"
         shift
         ;;
     esac

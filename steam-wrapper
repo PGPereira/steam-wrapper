@@ -362,7 +362,7 @@ option_parse "$@" || exit 1
 
 # Check if pager is set
 # TODO Add support for a $PAGER variable
-if [[ "${display_pager}" -eq 1 ]]; then
+if [ "${display_pager}" -eq 1 ]; then
 
   # Check for the PAGER environment variable
   # Conditional assignment works when using the set -u option

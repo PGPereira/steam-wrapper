@@ -18,7 +18,7 @@
 ##
 # Wrapper wrapper_version
 ##
-wrapper_version=0.2.1
+wrapper_version=0.2.2
 
 # Script variables
 conf_location=

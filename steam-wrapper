@@ -18,7 +18,7 @@
 ##
 # Wrapper wrapper_version
 ##
-wrapper_version=0.2.2
+wrapper_version=0.2.3
 
 # Script variables
 conf_location=
@@ -122,6 +122,7 @@ find_remove_stale_files()
     find "$1" \( -name "libgcc_s.so*" \
       -o -name "libasound.so*" \
       -o -name "libstdc++.so*" \
+      -o -name "libgpg-error.so" \
       -o -name "libxcb.so*" \) -print $2
   fi
 }
